@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management API</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #eef2f7;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #1a1a2e;
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        header span {
+            font-size: 12px;
+            background: #16213e;
+            padding: 3px 10px;
+            border-radius: 20px;
+            color: #a0aec0;
+        }
+
+        .container {
+            max-width: 780px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            background: #fff;
+            border-radius: 10px 10px 0 0;
+            border-bottom: 2px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #718096;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn:hover { background: #f7fafc; color: #2d3748; }
+
+        .tab-btn.active {
+            color: #1a1a2e;
+            border-bottom: 3px solid #1a1a2e;
+            background: #f7fafc;
+        }
+
+        /* PANELS */
+        .panel {
+            display: none;
+            background: #fff;
+            border-radius: 0 0 10px 10px;
+            padding: 32px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+
+        .panel.active { display: block; }
+
+        .panel h2 {
+            font-size: 18px;
+            color: #1a1a2e;
+            margin-bottom: 6px;
+        }
+
+        .panel p.subtitle {
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border 0.2s;
+            outline: none;
+        }
+
+        .form-group input:focus { border-color: #1a1a2e; }
+
+        .btn {
+            padding: 10px 22px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover { opacity: 0.85; }
+        .btn-primary  { background: #1a1a2e; color: white; }
+        .btn-success  { background: #276749; color: white; }
+        .btn-warning  { background: #b7791f; color: white; }
+        .btn-danger   { background: #c53030; color: white; }
+        .btn-secondary{ background: #4a5568; color: white; }
+
+        /* RESPONSE BOX */
+        .response-box {
+            margin-top: 24px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .response-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 8px 14px;
+            text-transform: uppercase;
+        }
+
+        .response-body {
+            padding: 14px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            min-height: 50px;
+        }
+
+        .response-box.success .response-label { background: #c6f6d5; color: #276749; }
+        .response-box.success .response-body  { background: #f0fff4; color: #22543d; }
+        .response-box.error   .response-label { background: #fed7d7; color: #c53030; }
+        .response-box.error   .response-body  { background: #fff5f5; color: #742a2a; }
+        .response-box.idle    .response-label { background: #e2e8f0; color: #718096; }
+        .response-box.idle    .response-body  { background: #f7fafc; color: #718096; }
+
+        .divider { border: none; border-top: 1px solid #e2e8f0; margin: 24px 0; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin-top: 12px;
+        }
+
+        table th {
+            background: #1a1a2e;
+            color: white;
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        table tr:hover td { background: #f7fafc; }
+
+        #userTableWrap { display: none; margin-top: 16px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>User Management API</h1>
+    <span>localhost/REST/REST API/my-api/api</span>
+</header>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('register')">Register</button>
+        <button class="tab-btn" onclick="switchTab('login')">Login</button>
+        <button class="tab-btn" onclick="switchTab('users')">View Users</button>
+        <button class="tab-btn" onclick="switchTab('update')">Update</button>
+        <button class="tab-btn" onclick="switchTab('delete')">Delete</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="tab-register" class="panel active">
+        <h2>Register Account</h2>
+        <p class="subtitle">Create a new user account.</p>
+        <div class="form-group">
+            <label>Username</label>
+            <input id="regUser" type="text" placeholder="Enter username (min 3 characters)">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input id="regPass" type="password" placeholder="Enter password (min 4 characters)">
+        </div>
+        <button class="btn btn-success" onclick="register()">Create Account</button>
+        <div id="res-register" class="response-box idle">
+            <div class="response-label">Response</div>
+            <div class="response-body">Waiting for request...</div>
+        </div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="tab-login" class="panel">
+        <h2>Login</h2>
+        <p class="subtitle">Authenticate with your credentials.</p>
+        <div class="form-group">
+            <label>Username</label>
+            <input id="logUser" type="text" placeholder="Enter username">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input id="logPass" type="password" placeholder="Enter password">
+        </div>
+        <button class="btn btn-primary" onclick="login()">Login</button>
+        <div id="res-login" class="response-box idle">
+            <div class="response-label">Response</div>
+            <div class="response-body">Waiting for request...</div>
+        </div>
+    </div>
+
+    <!-- VIEW USERS -->
+    <div id="tab-users" class="panel">
+        <h2>View Users</h2>
+        <p class="subtitle">Retrieve registered users from the system.</p>
+        <button class="btn btn-secondary" onclick="getUsers()">Get All Users</button>
+        <hr class="divider">
+        <div class="form-group">
+            <label>Lookup Specific User</label>
+            <input id="getUser" type="text" placeholder="Enter username">
+        </div>
+        <button class="btn btn-secondary" onclick="getOneUser()">Get User</button>
+        <div id="userTableWrap">
+            <table>
+                <thead><tr><th>#</th><th>Username</th></tr></thead>
+                <tbody id="userTableBody"></tbody>
+            </table>
+        </div>
+        <div id="res-users" class="response-box idle">
+            <div class="response-label">Response</div>
+            <div class="response-body">Waiting for request...</div>
+        </div>
+    </div>
+
+    <!-- UPDATE -->
+    <div id="tab-update" class="panel">
+        <h2>Update Password</h2>
+        <p class="subtitle">Change the password for an existing user.</p>
+        <div class="form-group">
+            <label>Username</label>
+            <input id="updUser" type="text" placeholder="Enter username">
+        </div>
+        <div class="form-group">
+            <label>New Password</label>
+            <input id="updPass" type="password" placeholder="Enter new password (min 4 characters)">
+        </div>
+        <button class="btn btn-warning" onclick="updateUser()">Update Password</button>
+        <div id="res-update" class="response-box idle">
+            <div class="response-label">Response</div>
+            <div class="response-body">Waiting for request...</div>
+        </div>
+    </div>
+
+    <!-- DELETE -->
+    <div id="tab-delete" class="panel">
+        <h2>Delete User</h2>
+        <p class="subtitle">Permanently remove a user from the system.</p>
+        <div class="form-group">
+            <label>Username</label>
+            <input id="delUser" type="text" placeholder="Enter username to delete">
+        </div>
+        <button class="btn btn-danger" onclick="deleteUser()">Delete User</button>
+        <div id="res-delete" class="response-box idle">
+            <div class="response-label">Response</div>
+            <div class="response-body">Waiting for request...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const DEFAULT_BASES = [
+        new URL('./api/index.php', window.location.href).toString(),
+        'http://localhost/REST/REST%20API/my-api/api/index.php',
+        'http://localhost:8080/REST/REST%20API/my-api/api/index.php',
+        'https://localhost:4433/REST/REST%20API/my-api/api/index.php'
+    ];
+
+    const API_BASES = [...new Set(DEFAULT_BASES)];
+
+    function switchTab(name) {
+        document.querySelectorAll('.tab-btn').forEach((btn) => {
+            btn.classList.toggle('active', btn.getAttribute('onclick') === `switchTab('${name}')`);
+        });
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('tab-' + name).classList.add('active');
+    }
+
+    function showResult(id, data, ok) {
+        const box = document.getElementById('res-' + id);
+        box.className = 'response-box ' + (ok ? 'success' : 'error');
+        box.querySelector('.response-label').textContent = ok ? 'Success' : 'Error';
+        box.querySelector('.response-body').textContent = JSON.stringify(data, null, 2);
+    }
+
+    function showNetworkError(id, errors = []) {
+        const box = document.getElementById('res-' + id);
+        box.className = 'response-box error';
+        box.querySelector('.response-label').textContent = 'Network Error';
+        const tried = errors.length > 0 ? `\n\nTried:\n- ${errors.join('\n- ')}` : '';
+        box.querySelector('.response-body').textContent =
+            'Could not reach the server.\nMake sure Apache is running in XAMPP.\nSupported local URLs include ports 80, 8080, and 4433.' + tried;
+    }
+
+    async function request(method, path, body = null) {
+        const options = { method, headers: { 'Content-Type': 'application/json' } };
+        if (body) options.body = JSON.stringify(body);
+
+        const route = path.replace(/^\/+/, '');
+        const errors = [];
+
+        for (const base of API_BASES) {
+            const url = `${base}?route=${encodeURIComponent(route)}`;
+            try {
+                const res = await fetch(url, options);
+                const text = await res.text();
+                const data = JSON.parse(text);
+                return { data, ok: res.ok, url };
+            } catch (err) {
+                errors.push(`${url} -> ${err.message}`);
+            }
+        }
+
+        throw new Error(errors.join(' | '));
+    }
+
+    async function register() {
+        try {
+            const { data, ok } = await request('POST', '/register', {
+                username: document.getElementById('regUser').value,
+                password: document.getElementById('regPass').value
+            });
+            showResult('register', data, ok);
+        } catch (err) {
+            showNetworkError('register', err.message ? err.message.split(' | ') : []);
+        }
+    }
+
+    async function login() {
+        try {
+            const { data, ok } = await request('POST', '/login', {
+                username: document.getElementById('logUser').value,
+                password: document.getElementById('logPass').value
+            });
+            showResult('login', data, ok);
+        } catch (err) {
+            showNetworkError('login', err.message ? err.message.split(' | ') : []);
+        }
+    }
+
+    async function getUsers() {
+        try {
+            const { data, ok } = await request('GET', '/users');
+            showResult('users', data, ok);
+            if (ok && data.users) {
+                const tbody = document.getElementById('userTableBody');
+                tbody.innerHTML = data.users.length === 0
+                    ? '<tr><td colspan="2" style="text-align:center;color:#718096">No users found</td></tr>'
+                    : data.users.map((u, i) => `<tr><td>${i + 1}</td><td>${u.username}</td></tr>`).join('');
+                document.getElementById('userTableWrap').style.display = 'block';
+            }
+        } catch (err) {
+            showNetworkError('users', err.message ? err.message.split(' | ') : []);
+        }
+    }
+
+    async function getOneUser() {
+        const u = document.getElementById('getUser').value.trim();
+        if (!u) return showResult('users', { status: 'error', message: 'Please enter a username' }, false);
+        try {
+            const { data, ok } = await request('GET', `/users/${u}`);
+            showResult('users', data, ok);
+            document.getElementById('userTableWrap').style.display = 'none';
+        } catch (err) {
+            showNetworkError('users', err.message ? err.message.split(' | ') : []);
+        }
+    }
+
+    async function updateUser() {
+        try {
+            const { data, ok } = await request('PUT', `/users/${document.getElementById('updUser').value}`, {
+                password: document.getElementById('updPass').value
+            });
+            showResult('update', data, ok);
+        } catch (err) {
+            showNetworkError('update', err.message ? err.message.split(' | ') : []);
+        }
+    }
+
+    async function deleteUser() {
+        const u = document.getElementById('delUser').value.trim();
+        if (!u) return showResult('delete', { status: 'error', message: 'Please enter a username' }, false);
+        try {
+            const { data, ok } = await request('DELETE', `/users/${u}`);
+            showResult('delete', data, ok);
+        } catch (err) {
+            showNetworkError('delete', err.message ? err.message.split(' | ') : []);
+        }
+    }
+</script>
+
+</body>
+</html>
