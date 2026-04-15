@@ -5,6 +5,7 @@
 This repository contains a small user management project built for the REST API activity.
 
 The repository includes:
+
 - a PHP backend served through XAMPP
 - a browser client
 - a Node.js terminal client
@@ -34,6 +35,7 @@ REST API/
 ## Requirements
 
 Install or prepare the following:
+
 - XAMPP with Apache
 - Node.js
 - Python 3
@@ -59,6 +61,7 @@ C:\xampp\htdocs\REST\REST API
 The clients are configured to try common local Apache URLs automatically.
 
 Fallback order includes:
+
 - `http://localhost/...` on port `80`
 - `http://localhost:8080/...`
 - `https://localhost:4433/...`
@@ -70,7 +73,7 @@ This allows the project to still run even if your XAMPP setup does not use the d
 Open this URL in your browser:
 
 ```text
-http://localhost/REST/REST%20API/my-api/index.html
+http://localhost:8080/REST/REST%20API/my-api/index.html
 ```
 
 If your Apache setup is not using port `80`, the browser client will still try the fallback API URLs internally.
