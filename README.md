@@ -117,3 +117,11 @@ The Tkinter client also supports automatic fallback across the configured local 
 - The browser client is the quickest way to test the project manually.
 - The Node.js and Tkinter clients consume the same backend.
 - Detailed endpoint and API behavior are documented in `API_DOCUMENTATION.md`.
+
+## Desktop Client Screenshot
+
+![1776309670374](image/README/1776309670374.png)
+
+![1776309689424](image/README/1776309689424.png)![1776309706815](image/README/1776309706815.png)
+
+![1776309652239](image/README/1776309652239.png)
